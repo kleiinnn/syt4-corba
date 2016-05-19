@@ -1,5 +1,7 @@
 #ifndef __CHAT_IDL__
 #define __CHAT_IDL__
+// this is a slightly adapted example of
+// http://www.ibm.com/developerworks/webservices/library/co-corbajct3.html#h6
 module chat {
     // Thrown by server when the client passes
     // an invalid connection id to the server
