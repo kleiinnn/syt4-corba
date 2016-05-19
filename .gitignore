@@ -1,3 +1,6 @@
 *.class
 */build/*
 *.o
+
+*.iml
+.idea

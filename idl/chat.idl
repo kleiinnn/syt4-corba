@@ -1,0 +1,34 @@
+#ifndef __CHAT_IDL__
+#define __CHAT_IDL__
+module chat {
+    // Thrown by server when the client passes
+    // an invalid connection id to the server
+    exception InvalidConnectionIdException
+    {
+        long invalidId;
+    };
+
+    // This is the callback interface that
+    // the client has to implement in order
+    // to listen to a talker.
+    interface Listener
+    {
+        // Called by the server to dispatch messages on the client
+        void receive(in string message);
+    };
+
+    // interface on the server side
+    interface Chatroom
+    {
+        // Called by the client to open a new connection
+        // Returned long is the connection ID
+        long register(in Listener client, in string listenerName);
+
+        // Makes the server broadcast the message to all clients
+        void send(in long connectionId, in string message) raises(InvalidConnectionIdException);
+
+        // Called by the client to sever the communication
+        void unregister(in long connectionId) raises (InvalidConnectionIdException);
+    };
+};
+#endif  // __CHAT_IDL__
