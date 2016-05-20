@@ -23,7 +23,9 @@ public class ChatroomImpl extends ChatroomPOA {
 
     @Override
     public void send(int connectionId, String message) throws InvalidConnectionIdException {
-        System.out.println(message);
+        if(!listeners.containsKey(connectionId))
+            throw new InvalidConnectionIdException(connectionId);
+
         for (Map.Entry<Integer, Listener> pair : listeners.entrySet()) {
             pair.getValue().receive(message);
         }
@@ -31,6 +33,9 @@ public class ChatroomImpl extends ChatroomPOA {
 
     @Override
     public void unregister(int connectionId) throws InvalidConnectionIdException {
+        if(!listeners.containsKey(connectionId))
+            throw new InvalidConnectionIdException(connectionId);
+        
         listeners.remove(connectionId);
     }
 }
