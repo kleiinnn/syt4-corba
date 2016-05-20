@@ -25,10 +25,7 @@ public class ChatroomImpl extends ChatroomPOA {
     public void send(int connectionId, String message) throws InvalidConnectionIdException {
         System.out.println(message);
         for (Map.Entry<Integer, Listener> pair : listeners.entrySet()) {
-            //if (!pair.getKey().equals(connectionId)) {
-            System.out.println("sending to: " + pair.getKey());
-                pair.getValue().receive(message);
-            //}
+            pair.getValue().receive(message);
         }
     }
 

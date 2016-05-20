@@ -1,24 +1,32 @@
 #!/usr/bin/env python
 
 import sys
+from threading import Thread
 
 # Import the CORBA module
 from omniORB import CORBA
 
 # Import the stubs for the CosNaming and Example modules
 import CosNaming
-
 import chat__POA, chat
 
+# listener implementation
 class Listener_I(chat__POA.Listener):
     def receive(self, msg):
         print(msg)
+
+
+# sender thread
+def send_thread(chatroom, id):
+    while(1):
+        msg = raw_input("> ")
+        chatroom.send(id, msg)
 
 # Initialise the ORB
 orb = CORBA.ORB_init(sys.argv)
 
 # Obtain a reference to the root naming context
-obj         = orb.resolve_initial_references("NameService")
+obj = orb.resolve_initial_references("NameService")
 rootContext = obj._narrow(CosNaming.NamingContext)
 
 poa = orb.resolve_initial_references("RootPOA")
@@ -47,8 +55,9 @@ if chatroom is None:
 listener = Listener_I()
 listenerRef = listener._this()
 
-chatroom.register(listenerRef, "foo")
+id = chatroom.register(listenerRef, "foo")
 
+Thread(target=send_thread, args=(chatroom, id,)).start()
 
 poaManager = poa._get_the_POAManager()
 poaManager.activate()
