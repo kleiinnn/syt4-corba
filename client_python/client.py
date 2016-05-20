@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import sys
+import os
 from threading import Thread
 
 # Import the CORBA module
@@ -61,4 +62,13 @@ Thread(target=send_thread, args=(chatroom, id,)).start()
 
 poaManager = poa._get_the_POAManager()
 poaManager.activate()
-orb.run()
+
+try:
+    orb.run()
+except KeyboardInterrupt:
+    chatroom.unregister(id)
+    orb.shutdown(True)
+    try:
+        sys.exit(0)
+    except SystemExit:
+        os._exit(0)
