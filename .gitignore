@@ -4,7 +4,7 @@
 *.o
 
 # client
-client/lib
+client_python/lib
 
 # jetbrains
 *.iml
