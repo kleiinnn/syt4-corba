@@ -1,6 +1,11 @@
+# server
 *.class
 */build/*
 *.o
 
+# client
+client/lib
+
+# jetbrains
 *.iml
 .idea

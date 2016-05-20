@@ -8,11 +8,12 @@ import org.omg.PortableServer.POA;
 import org.omg.PortableServer.POAHelper;
 
 /**
- * Created by markus on 19/05/16.
+ * Simple {@link Chatroom} server implementation.
  */
 public class Server {
     public static void main(String[] args)  {
         try {
+            // Initialize the ORB
             ORB orb = ORB.init(args, null);
             System.out.println("Initialized ORB");
 
