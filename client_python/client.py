@@ -24,7 +24,7 @@ def send_thread(chatroom, id):
         chatroom.send(id, msg)
 
 # Initialise the ORB
-orb = CORBA.ORB_init(sys.argv)
+orb = CORBA.ORB_init(sys.argv[2:])
 
 # Obtain a reference to the root naming context
 obj = orb.resolve_initial_references("NameService")
@@ -48,24 +48,27 @@ except CosNaming.NamingContext.NotFound, ex:
 
 # Narrow the object to an Example::Echo
 chatroom = obj._narrow(chat.Chatroom)
-
 if chatroom is None:
     print "Object reference is not an Example::Echo"
     sys.exit(1)
 
+# create and aquire an reference of listener
 listener = Listener_I()
 listenerRef = listener._this()
 
-id = chatroom.register(listenerRef, "foo")
+# register the listener
+id = chatroom.register(listenerRef, sys.argv[1])
 
 Thread(target=send_thread, args=(chatroom, id,)).start()
 
+# run t=flg
 poaManager = poa._get_the_POAManager()
 poaManager.activate()
 
 try:
     orb.run()
 except KeyboardInterrupt:
+    # unregister the listener and close down the program
     chatroom.unregister(id)
     orb.shutdown(True)
     try:

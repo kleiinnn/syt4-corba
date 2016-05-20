@@ -10,6 +10,7 @@ import java.util.Map;
  */
 public class ChatroomImpl extends ChatroomPOA {
     private Map<Integer, Listener> listeners = new HashMap<>();
+    private Map<Integer, String> listenerNames = new HashMap<>();
     private int messageIdCounter = 0;
 
     @Override
@@ -18,6 +19,7 @@ public class ChatroomImpl extends ChatroomPOA {
         messageIdCounter++;
 
         listeners.put(messageId, client);
+        listenerNames.put(messageId, listenerName);
         return messageId;
     }
 
@@ -27,7 +29,7 @@ public class ChatroomImpl extends ChatroomPOA {
             throw new InvalidConnectionIdException(connectionId);
 
         for (Map.Entry<Integer, Listener> pair : listeners.entrySet()) {
-            pair.getValue().receive(message);
+            pair.getValue().receive("[" + listenerNames.get(connectionId) + "] " + message);
         }
     }
 
@@ -35,7 +37,7 @@ public class ChatroomImpl extends ChatroomPOA {
     public void unregister(int connectionId) throws InvalidConnectionIdException {
         if(!listeners.containsKey(connectionId))
             throw new InvalidConnectionIdException(connectionId);
-        
+
         listeners.remove(connectionId);
     }
 }
