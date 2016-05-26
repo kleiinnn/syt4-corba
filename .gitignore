@@ -196,3 +196,6 @@ TSWLatexianTemp*
 
 # compiled python
 *.pyc
+
+#
+*.asta
