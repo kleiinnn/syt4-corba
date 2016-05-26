@@ -193,3 +193,6 @@ TSWLatexianTemp*
 
 # Compiles latex PDFs
 *.pdf
+
+# compiled python
+*.pyc

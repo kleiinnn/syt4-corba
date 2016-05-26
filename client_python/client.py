@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-
 import sys
 import os
 from threading import Thread
@@ -85,7 +84,8 @@ class ChatroomClient:
 
         :param listener_ids: list of listener id's which be unregistered
         """
-        self.chatroom.unregister(id)
+        for id in listener_ids:
+            self.chatroom.unregister(id)
         self.orb.shutdown(True)
 
 
