@@ -4,8 +4,33 @@
 \label{sec:Ergebnisse}
 
 \subsection{CORBA Grundlagen}
+CORBA steht f\"ur Common Object Request Broker Architecture und ist eine standardisierte Spezifikation einer Middleware f\"ur verteilte Objektaufrufe.
+In folgender Graphik bietet einen \"Uberblick \"uber die Komponenten einer Client-Server Andwendung in CORBA.
 
-\subsection{Installation von JacOrb und OmniORB}
+\begin{figure}[H]
+	\begin{center}
+		\includegraphics[width=0.6\linewidth]{images/corba.pdf}
+		\caption{Corba Client-Server Beispiel\cite{corba-client-server}}
+		\label{broker}
+	\end{center}
+\end{figure}
+
+Ein wichtiges Element ist das IDL (Interface Definition Language).
+Hierbei handelt es sich um eine Interfacedefinition, f\"ur welche sowohl der Client (also der Benutzer) also auch der Server (der Anbieter eines Remote Objekts) verwenden.
+
+In der folgenden Graphik sind die verschienden Komponenten von CORBA dargestellt.
+\begin{figure}[H]
+	\begin{center}
+		\includegraphics[width=0.5\linewidth]{images/corba.jpg}
+		\caption{\"Ubersicht der Komponenten von CORBA \cite{corba-components}}
+		\label{broker}
+	\end{center}
+\end{figure}
+
+Wichtig hierbei sind die Stubs und Skeletons, sowie das ORB-Interface (Object Request Broker) und der Portable Object Adapter (POA).
+Letzterer dient zum Export von Remote Objekten und zum Binden an den Namensdienst.
+
+\subsection{Installation von JacOrb\cite{jacorb} und OmniORB\cite{omniorb}}
 Die Durchf\"uhrung der Aufgabe erfolgte in einer virtuellen Maschiene auf Basis von Debian 8.3 Jessie.
 F\"ur die Installation von Java 8 muss das \texttt{jessie-backports} Repository zu der Sources von \texttt{apt} hinzugef\"ugt werden.
 Die erfolgt durch Anh\"angen folgender Zeilen an die Datei \texttt{/etc/apt/sources.list}:
@@ -66,13 +91,17 @@ sudo /sbin/ldconfig
 
 Mit dem letzten Befehl werden die installierten Bibliotheken aktualisiert, damit muss das Installationsverzeichnis nicht mehr manuell zum \texttt{LD\_LIBRARY\_PATH} hinzugef\"ugt werden.
 
+Da der Client in Python programmiert wird, muss zusat\"atzlich \texttt{pyomniorb}, also die Omnniorb-Bindungs f\"ur Python, installiert werden, die Software wird ebenfalls von Sourceforge heruntergeladen und danach mit \texttt{configure}, \texttt{make}, \texttt{sudo make install} installiert.
+
 \subsection{Implementierung}
-Ziel ist es, einen simplen Chat zu implementieren, welches den Clients erlaubt, mittels einem Observer Pattern Callbacks auf neue Nachrichten zu h\"oren.
+Die L\"osung der Aufgabe ist auf GitHub unter \url{https://github.com/kleiinnn/syt4-corba} verf\"ugbar und baut auf einem Beispiel von Michael Borko\cite{example} auf.
+
+Ziel ist es, einen simplen Chat zu implementieren, welcher den Clients erlaubt, mittels einem Observer Pattern und Callbacks auf neue Nachrichten zu h\"oren.
 
 \begin{figure}[H]
 	\begin{center}
 		\includegraphics[width=0.8\linewidth]{images/Observer.pdf}
-		\caption{UML Diagramm eines generischen Observer Patterns\cite{rmi-tutorial}}
+		\caption{UML Diagramm eines generischen Observer Patterns\cite{observer-pattern}}
 		\label{broker}
 	\end{center}
 \end{figure}
@@ -126,6 +155,16 @@ Ein \texttt{Chatroom} nimmt \texttt{Listener} Objekte entgegen und nimmt somit d
 Au\ss erdem enth\"alt er die \texttt{send(...)} Methode zur Ver\"offentlichung von Nachrichten.
 
 Ein \texttt{Listener} wird bei ankommenden Nachrichten vom \texttt{Chatroom} durch den Aufruf der \texttt{receive(...)} Methode benachrichtigt und nimmt somit die Funktion des Observers ein.
+
+Der Kommunikationsablauf zwischen den verschiendenen Komponenten \"uber den gesamten Lebenszyklus wird in folgendem Sequenzdiagramm \"ubersichtlich dargestellt.
+\begin{figure}[H]
+	\begin{center}
+		\includegraphics[width=0.8\linewidth]{images/sequence_diagram.pdf}
+		\caption{Sequenzdiagramm des Kommunikationsablaufes der Anwendung}
+		\label{broker}
+	\end{center}
+\end{figure}
+
 
 \subsubsection{Server}
 Die Implementierung der Server erfolgt in Java.
@@ -215,3 +254,109 @@ Danach wird der ORB mit \texttt{orb.run()} gestartet.
 Auch f\"ur die Ausf\"uhrung des Servers gibt es einen Ant-Task, welcher mit \texttt{ant run-server} gestartet.
 
 \subsubsection{Client}
+Der Client, wird, wie zuvor bereits erw\"ahnt in Python implementiert, als Build Automation Tool kommt Make zum Einsatz.
+In folgendem ist Makefile zusehen, die wichtigsten Targets sind hierbei das default Target \texttt{all}, welches die Python Bindings aus dem IDL generiert, sowie \texttt{run}, welches den Client startet.
+\begin{lstlisting}[language=Make, caption=Makefile des Clients]
+PYTHON         	= /usr/bin/python
+PYTHON_PATH     = lib
+CPPFLAGS      	= -g -c
+OMNIIDL       	= /usr/local/bin/omniidl
+IDL_DIR		    = ../idl
+IDL_FILE	    = $(IDL_DIR)/chat.idl
+
+all chat_idl.py: $(IDL_FILE)
+	$(OMNIIDL) -bpython -Clib $(IDL_FILE)
+
+run: chat_idl.py
+	# Start Naming service with command 'omniNames -start -always' as root
+	PYTHONPATH=lib python client.py markus -ORBInitRef NameService=corbaloc::127.0.0.1:2809/NameService
+
+clean clean-up:
+	rm -rf *.o
+	rm -rf *.hh
+	rm -rf *SK.cc
+	rm -rf server
+\end{lstlisting}
+
+Es wurde ein simples Kommandzeileninterface entwickelt, \"uber das der Buntzer nach der Registrierung des Clients am Server (bzw. nach der Anmeldung im Chatroom), Nachrichten senden kann.
+Parallel dazu werden ankommende Nachrichten ausgegeben.
+Wichtigster Teil ist dabei die \texttt{ChatroomClient} Klasse, welche als Abstraktionsebene fungiert und die Kommunikation mit dem \texttt{Chatroom} Remoteobjekt \"ubernimmt
+\begin{lstlisting}[language={Python}, caption=Chatroom Klasse des Clients als Abstraktionsebene zu CORBA]
+class ChatroomClient:
+    def __init__(self, orb_args):
+        # Initialise the ORB
+        self.orb = CORBA.ORB_init(orb_args)
+
+        # Obtain a reference to the root naming context
+        obj = self.orb.resolve_initial_references("NameService")
+        rootContext = obj._narrow(CosNaming.NamingContext)
+
+        self.poa = self.orb.resolve_initial_references("RootPOA")
+
+        if rootContext is None:
+            print "Failed to narrow the root naming context"
+            sys.exit(1)
+
+        # Resolve the Chatroom Object
+        name = [CosNaming.NameComponent("Chatroom", "")]
+
+        try:
+            obj = rootContext.resolve(name)
+
+        except CosNaming.NamingContext.NotFound, ex:
+            print "Name not found"
+            sys.exit(1)
+
+        # Narrow the object
+        self.chatroom = obj._narrow(chat.Chatroom)
+        if self.chatroom is None:
+            print "Object reference is not an chat.Chatroom"
+            sys.exit(1)
+
+    def register(self, listener, listener_name):
+        # get a remote object reference to the listener
+        listener_ref = listener._this()
+        # register the listener
+        return self.chatroom.register(listener_ref, listener_name)
+
+    def send(self, listener_id, msg):
+        self.chatroom.send(listener_id, msg)
+
+    def run(self):
+        poa_manager = self.poa._get_the_POAManager()
+        poa_manager.activate()
+        self.orb.run()
+
+    def shutdown(self):
+        self.chatroom.unregister(id)
+        self.orb.shutdown(True)
+\end{lstlisting}
+Im oberen Listing wurden die Methoden- und Klassenbeschreibungen entfernt um Platz zu sparen.
+Im Konstruktor wird zun\"achst CORBA initialisiert und danach das \texttt{Chatroom} Objekt \"uber den Namensdienst abgerufen.
+Desweiteren wird auch der POA (Protable Object Adapter) abgerufen, mit dem danach die Listener Objekte exportiert werden k\"onnen.
+Die Methoden \texttt{register(...)} und \texttt{send(...)} sind nicht viel mehr als simple Wrapper \"uber das tats\"achliche \texttt{Chatroom} Objekt.
+\texttt{run()} und \texttt{shutdown()} starten und stoppen den ORB Thread, wichtig ist au\ss erdem, dass vor dem Stoppen des Orb's noch der Listener entfernt wird, da der Server ansonsten Nachrichten an das nicht mehr existierende Objekt senden w\"urde.
+
+\subsubsection{Ausf\"uhrung}
+F\"ur die Ausf\"uhrung sind 3 Komponenten und werden wie folgt gestartet:
+\begin{itemize}
+    \item OMNI Naming Service: \texttt{sudo omniNames}
+    \item Server: \texttt{ant run-server} (Im \texttt{server} Verzeichnis)
+    \item Client: \texttt{make run} (Im \texttt{client\_python} Verzeichnis)
+\end{itemize}
+
+Dem Client wird als erster Parameter ein Name mitgegeben, welcher jeder Nachricht vorangestellt wird, diese ist im Makefile hardcodiert um un\"otige Komplexit\"at zu vermeiden.
+
+\subsection{Arbeitszeit}
+\renewcommand{\arraystretch}{1.5}
+\begin{table}[H]
+	\center
+	\begin{tabular}{ | @{\hspace{3mm}} c @{\hspace{3mm}} | @{\hspace{3mm}} c @{\hspace{3mm}} | @{\hspace{3mm}} c @{\hspace{3mm}} | }
+		\hline \textbf{T\"atigkeit} & \textbf{Datum} & \textbf{Dauer}\\ \hline\hline
+		\textbf{Implementierung Aufgabe} & 13.5. & 4h\\ \hline
+		\textbf{Implementierung + Protokoll} & 20.5. & 4h\\ \hline
+        \textbf{Protokoll} & 26.5. & 4h\\ \hline
+	\end{tabular}
+	\caption{Arbeitszeitaufzeichnung}
+	\label{methoden}
+\end{table}
