@@ -1,7 +1,7 @@
 from client import ChatroomClient
 from threading import Thread
 import unittest
-import chat__POA
+import chat__POA, chat
 
 class TestChatroomClient(unittest.TestCase):
     class ChatroomListener(chat__POA.Listener):
@@ -13,19 +13,26 @@ class TestChatroomClient(unittest.TestCase):
             #self.chatroom.shutdown((self.listener_id,))
 
 
+    @classmethod
+    def setUpClass(cls):
+        TestChatroomClient.chatroom = ChatroomClient(['-ORBInitRef', 'NameService=corbaloc::127.0.0.1:2809/NameService'])
+
     def test_register(self):
-        chatroom = ChatroomClient(['-ORBInitRef', 'NameService=corbaloc::127.0.0.1:2809/NameService'])
         listener = TestChatroomClient.ChatroomListener()
-        id = chatroom.register(listener, "test")
+        id = TestChatroomClient.chatroom.register(listener, "test")
 
-        def send_thread(chatroom, id):
-            chatroom.send(id, 'msg')
-            chatroom.shutdown((id,))
-
-        Thread(target=send_thread, args=(chatroom, id,)).start()
-        chatroom.run()
+        TestChatroomClient.chatroom.send(id, 'msg')
+        TestChatroomClient.chatroom.unregister(id)
 
         self.assertIn('[test] msg', listener.messages)
+
+    def test_send_invalid_id(self):
+        with self.assertRaises(chat.InvalidConnectionIdException):
+            TestChatroomClient.chatroom.send(1234, 'msg')
+
+    def test_unregister_invalid_id(self):
+        with self.assertRaises(chat.InvalidConnectionIdException):
+            TestChatroomClient.chatroom.unregister(1234)
 
 
 if __name__ == "__main__":

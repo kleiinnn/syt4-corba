@@ -27,7 +27,7 @@ module chat {
         long register(in Listener client, in string listenerName);
 
         // Makes the server broadcast the message to all clients
-        void send(in long connectionId, in string message) raises(InvalidConnectionIdException);
+        void send(in long connectionId, in string message) raises (InvalidConnectionIdException);
 
         // Called by the client to sever the communication
         void unregister(in long connectionId) raises (InvalidConnectionIdException);

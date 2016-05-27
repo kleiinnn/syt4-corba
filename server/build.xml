@@ -40,7 +40,7 @@
 		<pathelement location="${classes.dir}" />
 	</path>
 
-	<!-- Definieren eines in einer bestimmten Klasse vorhandenen Tasks -->
+	<!-- Definieren eines in einerx bestimmten Klasse vorhandenen Tasks -->
 	<target name="idl.taskdef">
 		<taskdef name="jacidl" classname="org.jacorb.idl.JacIDL"
 			classpathref="jacorb.classpath" />
@@ -79,6 +79,7 @@
 			<arg value="-ORBInitRef" />
 			<arg value="NameService=corbaloc::127.0.0.1:2809/NameService" />
 			<classpath refid="project.classpath" />
+			<classpath refid="jacorb.classpath" />
 		</java>
 	</target>
 

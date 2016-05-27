@@ -48,6 +48,9 @@ class ChatroomClient:
             print "Object reference is not an chat.Chatroom"
             sys.exit(1)
 
+        poa_manager = self.poa._get_the_POAManager()
+        poa_manager.activate()
+
     def register(self, listener, listener_name):
         """
         Register a listener to the chatroom.
@@ -70,23 +73,13 @@ class ChatroomClient:
         """
         self.chatroom.send(listener_id, msg)
 
-    def run(self):
-        """
-        Run the ORB thread
-        """
-        poa_manager = self.poa._get_the_POAManager()
-        poa_manager.activate()
-        self.orb.run()
-
-    def shutdown(self, listener_ids):
+    def unregister(self, listener_id):
         """
         Unregister the listener and shutdown the ORB thread.
 
         :param listener_ids: list of listener id's which be unregistered
         """
-        for id in listener_ids:
-            self.chatroom.unregister(id)
-        self.orb.shutdown(True)
+        self.chatroom.unregister(listener_id)
 
 
 if __name__ == '__main__':
@@ -97,22 +90,17 @@ if __name__ == '__main__':
 
 
     # sender
-    def send_thread(chatroom, id):
-        while(1):
-            msg = raw_input("> ")
-            chatroom.send(id, msg)
-
     chatroom = ChatroomClient(sys.argv[2:])
     listener = ChatroomListener()
     id = chatroom.register(listener, sys.argv[1])
 
-    Thread(target=send_thread, args=(chatroom, id,)).start()
-
     try:
-        chatroom.run()
+        while(1):
+            msg = raw_input("> ")
+            chatroom.send(id, msg)
     except KeyboardInterrupt:
         # unregister the listener and close down the program
-        chatroom.shutdown((id,))
+        chatroom.unregister(id)
         try:
             sys.exit(0)
         except SystemExit:
