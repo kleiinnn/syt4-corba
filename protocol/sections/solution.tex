@@ -5,6 +5,7 @@
 
 \subsection{CORBA Grundlagen}
 CORBA steht f\"ur Common Object Request Broker Architecture und ist eine standardisierte Spezifikation einer Middleware f\"ur verteilte Objektaufrufe.
+Im Gegensatz zu RMI ist CORBA Programmiersprachenunabh\"angig, so kann beispielsweise der Client in C++ und der Server in Java programmiert werden.
 In folgender Graphik bietet einen \"Uberblick \"uber die Komponenten einer Client-Server Andwendung in CORBA.
 
 \begin{figure}[H]
@@ -16,7 +17,7 @@ In folgender Graphik bietet einen \"Uberblick \"uber die Komponenten einer Clien
 \end{figure}
 
 Ein wichtiges Element ist das IDL (Interface Definition Language).
-Hierbei handelt es sich um eine Interfacedefinition, f\"ur welche sowohl der Client (also der Benutzer) also auch der Server (der Anbieter eines Remote Objekts) verwenden.
+Hierbei handelt es sich um eine Interfacedefinition, die sowohl der (also der Benutzer) also auch der Server (der Anbieter eines Remote Objekts) verwenden.
 
 In der folgenden Graphik sind die verschienden Komponenten von CORBA dargestellt.
 \begin{figure}[H]
@@ -40,7 +41,7 @@ deb-src http://httpredir.debian.org/debian jessie-backports main}
 
 Danach werden die Packetlisten mit \texttt{apt update} aktualisiert.
 
-Vor der eigentlichen Installation der beiden Programme werden nun folgende Packets installiert:
+Vor der eigentlichen Installation der beiden Programme werden nun folgende Packete installiert:
 \begin{itemize}
     \item build-essentials
     \item gcc
@@ -50,7 +51,7 @@ Vor der eigentlichen Installation der beiden Programme werden nun folgende Packe
     \item make
 \end{itemize}
 
-Um tats\"achlich Java8 als default Runtime zu konfiurieren wird \texttt{sudo update-alternatives --config java} ausgef\"uhrt und \texttt{java-8-openjdk-amd64} (Option 2) ausgew\"ahlt
+Um tats\"achlich Java8 als default Runtime zu konfiurieren wird \texttt{sudo update-alternatives --config java} ausgef\"uhrt und \texttt{java-8-openjdk-amd64} (Option 2) ausgew\"ahlt.
 
 \subsubsection{JacOrb}
 JacORB ist eine Object Request Broker (ORB) Implementierung f\"ur Java, die Installation erfolgt mittels Download der Binary von \url{http://www.jacorb.org/releases/3.7/jacorb-3.7-binary.zip} und anschlie\ss endes Verschieben nach \texttt{~/opt/}:
@@ -70,8 +71,8 @@ ln -s jacorb-3.7/ jacorb
 \end{lstlisting}
 
 \subsubsection{Omniorb}
-Bei OmniORB handelt es sich ebenfalls um einen ORB, dieser ist allerdings f\"ur C++ und Python
-Da f\"ur die Implementierung Python zum Einsatz kommt, m\"ussen zun\"achst die C++ und danach die Python Bindings installiert werden.
+Bei OmniORB handelt es sich ebenfalls um einen ORB, jedoch mit Support f\"ur C++ und Python.
+Da bei Implementierung Python zum Einsatz kommt, m\"ussen zun\"achst die C++ und danach die Python Bindings installiert werden.
 
 OmniORB wird von Sourceforge (\url{http://omniorb.sourceforge.net/download.html}) heruntergeladen und direkt von den Quelldateien kompiliert:
 \begin{lstlisting}[caption=Installation von OmniORB]
@@ -109,7 +110,7 @@ Ziel ist es, einen simplen Chat zu implementieren, welcher den Clients erlaubt, 
 \subsubsection{IDL}
 Die Interface Definition Language ist eine deskriptive Sprache zur Definition von Sprachunabh\"angigien Interfaces.
 Mittels eines IDL Compiles k\"onnen aus einer IDL Datei Stubs/Skeletons f\"ur die jeweilige Sprache generiert.
-Im Falle des Chats sieht das IDL, welches eine ver\"anderte Version eines Tutorials von IBM ist, wie folgt aus:
+Im Falle des Chats sieht das IDL, welches eine ver\"anderte Version eines Tutorials von IBM\cite{idl-callback} ist, wie folgt aus:
 
 \begin{lstlisting}[language={[CORBA]IDL}, caption=chat.idl]
 #ifndef __CHAT_IDL__
@@ -150,11 +151,11 @@ module chat {
 #endif // __CHAT_IDL__
 \end{lstlisting}
 
-Welches Interface, welcher Komponente des Observerpatterns entspricht ist relativ klar zu erkennen.
-Ein \texttt{Chatroom} nimmt \texttt{Listener} Objekte entgegen und nimmt somit die Funktion des Subjects ein.
+Welches Interface, welcher Komponente des Observerpatterns entspricht ist relativ klar zu erkennen:
+Ein \texttt{Chatroom} nimmt \texttt{Listener} Objekte entgegen und nimmt somit die Stellung des Subjects ein.
 Au\ss erdem enth\"alt er die \texttt{send(...)} Methode zur Ver\"offentlichung von Nachrichten.
 
-Ein \texttt{Listener} wird bei ankommenden Nachrichten vom \texttt{Chatroom} durch den Aufruf der \texttt{receive(...)} Methode benachrichtigt und nimmt somit die Funktion des Observers ein.
+Ein \texttt{Listener} wird bei ankommenden Nachrichten vom \texttt{Chatroom} durch den Aufruf der \texttt{receive(...)} Methode benachrichtigt und fungiert somit als Observer.
 
 Der Kommunikationsablauf zwischen den verschiendenen Komponenten \"uber den gesamten Lebenszyklus wird in folgendem Sequenzdiagramm \"ubersichtlich dargestellt.
 \begin{figure}[H]
@@ -211,9 +212,9 @@ Im ersten Schritt werden daf\"ur die Interface Definitionen mithife eines Ant-Ta
 In dem Ant-Script wird durch den entsprechenden Aufruf des JacORB IDL Compilers die Stubs und Skeletons des Interfaces generiert.
 
 Danach muss am Server Chatroom implementiert werden, dies erfolgt durch Vererben der Klasse \texttt{ChatroomPOA}.
-In dem Code finden sich keine speziellen, Corba spezifischen Elemente, es handelt es sich um eine simple Methoden, welche keine besondere Aufmerksamkert bef\"urfen.
+In dem Code finden sich keine speziellen, Corba spezifischen Elemente, es handelt es sich um eine simple Methoden, welche keine besondere Aufmerksamkert bed\"urfen.
 
-Interessanter ist jedoch die tats\"achliche Implementierung des Server und die Anbindung an Corba:
+Interessanter ist jedoch die tats\"achliche Implementierung des Servers und die Anbindung an Corba:
 \begin{lstlisting}[language=Java, caption=Server Main Methode]
 public static void main(String[] args)  {
     try {
@@ -247,15 +248,15 @@ public static void main(String[] args)  {
 }
 \end{lstlisting}
 
-In dem oberen Listing wird zun\"achst der ORB initalisiert und eine Referenz auf den Portable Object Adapter (POA) erzeugt, mithilfe dessen anschlie\ss end eine Instance von \texttt{Chatroom} als Objektreferenz an den Namensdient gebunden werden kann.
+In dem oberen Listing wird zun\"achst der ORB initalisiert und eine Referenz auf den Portable Object Adapter (POA) erzeugt, mithilfe dessen anschlie\ss end eine Instanz von \texttt{Chatroom} als Objektreferenz an den Namensdienst gebunden werden kann.
 Dies geschieht in den Zeilen 7 bis 20.
 Danach wird der ORB mit \texttt{orb.run()} gestartet.
 
-Auch f\"ur die Ausf\"uhrung des Servers gibt es einen Ant-Task, welcher mit \texttt{ant run-server} gestartet.
+Auch f\"ur die Ausf\"uhrung des Servers gibt es einen Ant-Task names \texttt{ant run-server}.
 
 \subsubsection{Client}
 Der Client, wird, wie zuvor bereits erw\"ahnt in Python implementiert, als Build Automation Tool kommt Make zum Einsatz.
-In folgendem ist Makefile zusehen, die wichtigsten Targets sind hierbei das default Target \texttt{all}, welches die Python Bindings aus dem IDL generiert, sowie \texttt{run}, welches den Client startet.
+In folgendem ist das akefile zusehen, die wichtigsten Targets sind hierbei das default Target \texttt{all}, welches die Python Bindings aus dem IDL generiert, sowie \texttt{run}, f\"ur das Starten des Clients.
 \begin{lstlisting}[language=Make, caption=Makefile des Clients]
 PYTHON         	= /usr/bin/python
 PYTHON_PATH     = lib
@@ -267,9 +268,12 @@ IDL_FILE	    = $(IDL_DIR)/chat.idl
 all chat_idl.py: $(IDL_FILE)
 	$(OMNIIDL) -bpython -Clib $(IDL_FILE)
 
-run: chat_idl.py
-	# Start Naming service with command 'omniNames -start -always' as root
-	PYTHONPATH=lib python client.py markus -ORBInitRef NameService=corbaloc::127.0.0.1:2809/NameService
+run: chat_idl.py $(PYTHON)
+# Start Naming service with command 'omniNames -start -always' as root
+	PYTHONPATH=lib $(PYTHON) client.py markus -ORBInitRef NameService=corbaloc::127.0.0.1:2809/NameService
+
+test: chat_idl.py $(PYTHON)
+	PYTHONPATH=lib:. $(PYTHON) test/test_chatroomClient.py
 
 clean clean-up:
 	rm -rf *.o
@@ -278,9 +282,9 @@ clean clean-up:
 	rm -rf server
 \end{lstlisting}
 
-Es wurde ein simples Kommandzeileninterface entwickelt, \"uber das der Buntzer nach der Registrierung des Clients am Server (bzw. nach der Anmeldung im Chatroom), Nachrichten senden kann.
+Es wurde ein simples Kommandzeileninterface entwickelt, \"uber das der Benutzer nach der Registrierung des Clients am Server (bzw. nach der Anmeldung im Chatroom), Nachrichten senden kann.
 Parallel dazu werden ankommende Nachrichten ausgegeben.
-Wichtigster Teil ist dabei die \texttt{ChatroomClient} Klasse, welche als Abstraktionsebene fungiert und die Kommunikation mit dem \texttt{Chatroom} Remoteobjekt \"ubernimmt
+Wichtigster Teil ist die \texttt{ChatroomClient} Klasse, welche als Abstraktionsebene fungiert und die Kommunikation mit dem \texttt{Chatroom} Remoteobjekt \"ubernimmt
 \begin{lstlisting}[language={Python}, caption=Chatroom Klasse des Clients als Abstraktionsebene zu CORBA]
 class ChatroomClient:
     def __init__(self, orb_args):
@@ -297,7 +301,7 @@ class ChatroomClient:
             print "Failed to narrow the root naming context"
             sys.exit(1)
 
-        # Resolve the Chatroom Object
+        # Resolve the name "test.my_context/ExampleEcho.Object"
         name = [CosNaming.NameComponent("Chatroom", "")]
 
         try:
@@ -313,6 +317,9 @@ class ChatroomClient:
             print "Object reference is not an chat.Chatroom"
             sys.exit(1)
 
+        poa_manager = self.poa._get_the_POAManager()
+        poa_manager.activate()
+
     def register(self, listener, listener_name):
         # get a remote object reference to the listener
         listener_ref = listener._this()
@@ -322,30 +329,41 @@ class ChatroomClient:
     def send(self, listener_id, msg):
         self.chatroom.send(listener_id, msg)
 
-    def run(self):
-        poa_manager = self.poa._get_the_POAManager()
-        poa_manager.activate()
-        self.orb.run()
-
-    def shutdown(self):
-        self.chatroom.unregister(id)
-        self.orb.shutdown(True)
+    def unregister(self, listener_id):
+        self.chatroom.unregister(listener_id)
 \end{lstlisting}
 Im oberen Listing wurden die Methoden- und Klassenbeschreibungen entfernt um Platz zu sparen.
 Im Konstruktor wird zun\"achst CORBA initialisiert und danach das \texttt{Chatroom} Objekt \"uber den Namensdienst abgerufen.
 Desweiteren wird auch der POA (Protable Object Adapter) abgerufen, mit dem danach die Listener Objekte exportiert werden k\"onnen.
-Die Methoden \texttt{register(...)} und \texttt{send(...)} sind nicht viel mehr als simple Wrapper \"uber das tats\"achliche \texttt{Chatroom} Objekt.
-\texttt{run()} und \texttt{shutdown()} starten und stoppen den ORB Thread, wichtig ist au\ss erdem, dass vor dem Stoppen des Orb's noch der Listener entfernt wird, da der Server ansonsten Nachrichten an das nicht mehr existierende Objekt senden w\"urde.
+Die \"ubrigen Methoden \texttt{register(...)}, \texttt{unregister(...)} und \texttt{send(...)} sind nicht viel mehr als simple Wrapper \"uber das tats\"achliche \texttt{Chatroom} Objekt.
+PyOmniORB ist multithreaded, der ORB Arbeitsthread wird bei Beendigung des Hauptthreads automatisch gestoppt.
+Wichtig ist au\ss erdem, dass vor dem Beenden des Programmes noch der Listener entfernt wird, da der Server ansonsten Nachrichten an das nicht mehr existierende Objekt senden w\"urde.
 
-\subsubsection{Ausf\"uhrung}
-F\"ur die Ausf\"uhrung sind 3 Komponenten und werden wie folgt gestartet:
+Die Implementierung des Listeners ist sehr simpel, es muss lediglich von \texttt{chat\_\_POA.Listener} geerbt und die Methode \texttt{receive(...)} implementiert werden:
+
+\begin{lstlisting}[language={Python}, caption=Simple Nachrichten Listener Implementierung ]
+class ChatroomListener(chat\_\_POA.Listener):
+    def receive(self, msg):
+        print(msg)
+\end{lstlisting}
+
+\subsubsection{Ausf\"uhrung / Testcases}
+F\"ur die Ausf\"uhrung sind 3 Komponenten erforderlich, diese werden wie folgt gestartet:
 \begin{itemize}
     \item OMNI Naming Service: \texttt{sudo omniNames}
     \item Server: \texttt{ant run-server} (Im \texttt{server} Verzeichnis)
     \item Client: \texttt{make run} (Im \texttt{client\_python} Verzeichnis)
 \end{itemize}
 
-Dem Client wird als erster Parameter ein Name mitgegeben, welcher jeder Nachricht vorangestellt wird, diese ist im Makefile hardcodiert um un\"otige Komplexit\"at zu vermeiden.
+Dem Client wird als erster Parameter ein Name mitgegeben, der jeder Nachricht vorangestellt wird.
+Dieser Name ist im Makefile hardcodiert um un\"otige Komplexit\"at zu vermeiden.
+
+Auch wurden einige Testcases implementiert.
+F\"ur die Ausf\"uhrung der Tests gibt es ebenfalls ein Make-Target im Client:
+
+\texttt{make test}
+
+Zuvor m\"ussen allerdings der Server und OmniNames gestartet werden.
 
 \subsection{Arbeitszeit}
 \renewcommand{\arraystretch}{1.5}
